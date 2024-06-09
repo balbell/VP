@@ -1,0 +1,42 @@
+Imports System.Data.OleDb
+
+Public Class Form2
+
+    Private Sub Form2_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' Load data from the database into the DataGridView
+        LoadData()
+    End Sub
+
+    Private Sub LoadData()
+        Try
+            ' Open the connection
+            If con.State = ConnectionState.Closed Then
+                con.Open()
+            End If
+
+            ' Select command
+            Dim selectQuery As String = "SELECT * FROM Patient"
+            da = New OleDb.OleDbDataAdapter(selectQuery, con)
+
+            ' Fill the DataSet
+            ds = New DataSet()
+            da.Fill(ds, "Patient")
+
+            ' Bind the DataSet to the DataGridView
+            DataGridView1.DataSource = ds.Tables("Patient")
+
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Finally
+            ' Close the connection
+            If con.State = ConnectionState.Open Then
+                con.Close()
+            End If
+        End Try
+    End Sub
+
+    Private Sub DataGridView1_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles DataGridView1.CellContentClick
+        ' Optional: Handle cell content click event
+    End Sub
+
+End Class
