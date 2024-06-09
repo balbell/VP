@@ -1,139 +1,169 @@
-	body {
-	background-repeat : repeat;
-	background-attachment : fixed;
-	}
+Form1
+Public Class Form1 
 
-	#container {
-	background-image : url("images/farmasi.jpg");
-	width : 1470px;
-	height : 1030px;
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' Disable text fields and combo boxes by default
+        txtID.Enabled = False
+        txtName.Enabled = False
+        txtIC.Enabled = False
+        cbGender.Enabled = False
+        txtNum.Enabled = False
+        txtAdd.Enabled = False
+        cbClinic.Enabled = False
+        btnSave.Enabled = False
+    End Sub
 
-	}
+    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+        ' Enable text fields and combo boxes
+        txtID.Enabled = True
+        txtName.Enabled = True
+        txtIC.Enabled = True
+        cbGender.Enabled = True
+        txtNum.Enabled = True
+        txtAdd.Enabled = True
+        cbClinic.Enabled = True
+        btnSave.Enabled = True
+    End Sub
 
-	.column {
-	flex: 2;
-	padding: 10px;
-	border-radius: 10px;
-	}
+    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+        ' Check if any of the text boxes are empty
+        If String.IsNullOrEmpty(txtID.Text) OrElse
+           String.IsNullOrEmpty(txtName.Text) OrElse
+           String.IsNullOrEmpty(txtIC.Text) OrElse
+           cbGender.SelectedIndex < 0 OrElse
+           String.IsNullOrEmpty(txtNum.Text) OrElse
+           String.IsNullOrEmpty(txtAdd.Text) OrElse
+           cbClinic.SelectedIndex < 0 Then
 
-	.form-container {
-	  background-color: #6F8FAF; 
-	  border: 2px solid #CCCCCC; 
-	  border-radius: 40px; 
-	  padding-left : auto; 
-	  width: 60%; 
-	  margin: auto;
-	}
-	
-	.right-logo {
-	float : right;
-	}
-	
-	.num {
-	text-align : center;
-	color : red;
-	}
-	
-	.box {
-	background-color: #6F8FAF; 
-	border: 2px solid #CCCCCC; 
-	border-radius: 70px; 
-	padding-left : auto; 
-	width: 60%;
-	margin: auto; 
-	text-align : center;
-	}
+            MessageBox.Show("Please fill up all fields.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Else
+            Try
+                ' Open the connection
+                If con.State = ConnectionState.Closed Then
+                    con.Open()
+                End If
 
-	#nav {
-	list-style-type : none;
-	height : 876px;
-	margin : 0;
-	padding : 0;
-	width : 200px;
-	background-color : #4682B4;
-	float : left;
-	}
+                ' Insert command
+                Dim insertQuery As String = "INSERT INTO Patient (PatID, Name, IC, Gender, Mobile, Address, Clinician) VALUES (@ID, @Name, @IC, @Gender, @PhoneNumber, @Address, @Clinic)"
+                cmd = New OleDb.OleDbCommand(insertQuery, con)
 
-	#content {
-	text-align : center;
-	float : center;
-	}
+                ' Add parameters
+                cmd.Parameters.AddWithValue("@ID", txtID.Text)
+                cmd.Parameters.AddWithValue("@Name", txtName.Text)
+                cmd.Parameters.AddWithValue("@IC", txtIC.Text)
+                cmd.Parameters.AddWithValue("@Gender", cbGender.Text)
+                cmd.Parameters.AddWithValue("@PhoneNumber", txtNum.Text)
+                cmd.Parameters.AddWithValue("@Address", txtAdd.Text)
+                cmd.Parameters.AddWithValue("@Clinic", cbClinic.Text)
 
-	img {
-	width : 300px;
-	height : 300px;
-	}
+                ' Execute the command
+                cmd.ExecuteNonQuery()
 
-	a {
-	display : block;
-	color : white;
-	text-align : center;
-	padding : 10px 5px;
-	text-decoration : none;}
+                MessageBox.Show("Form submitted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
-	a:hover {background-color : #A7C7E7;}
+                ' Clear the form fields after submission
+                txtID.Clear()
+                txtName.Clear()
+                txtIC.Clear()
+                cbGender.SelectedIndex = -1
+                txtNum.Clear()
+                txtAdd.Clear()
+                cbClinic.SelectedIndex = -1
 
-    .detail {
-	font-family : courier new;
-	font-size : 20;
-	
-	}
+            Catch ex As Exception
+                MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Finally
+                ' Close the connection
+                If con.State = ConnectionState.Open Then
+                    con.Close()
+                End If
+            End Try
+        End If
+    End Sub
 
-	#header {
-	color : #A7C7E7;
-	background-color : #000080;
-	padding : 1px;
-	text-align : center;
-	margin-left : auto;
-	margin-right : auto;
-	font-family : lucida handwriting;
-	}
+    Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+        ' Confirm delete action
+        Dim result As DialogResult = MessageBox.Show("Are you sure you want to delete this record?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
 
-	form {
-	padding : 10px;
-	}
+        If result = DialogResult.Yes Then
+            ' Check if the ID field is not empty
+            If String.IsNullOrEmpty(txtID.Text) Then
+                MessageBox.Show("Please enter the ID of the record to delete.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Else
+                Try
+                    ' Open the connection
+                    If con.State = ConnectionState.Closed Then
+                        con.Open()
+                    End If
 
-	h3 {
-	color : #000000;
-	font-family : courier new;
-	}
-	
-	.Products{
+                    ' Delete command
+                    Dim deleteQuery As String = "DELETE FROM Patient WHERE PatID = ?"
+                    cmd = New OleDb.OleDbCommand(deleteQuery, con)
 
-	margin-top: 50px;
-	margin-left: 220px;
-	margin-right: 20px;
-	background-color: #6F8FAF;
-	text-align: center;
-	font-family: "Lucida Console", "Courier New", monospace;
-	border-radius: 40px;
-	}
-	
-	.Products img{
-		width: 220px;
-		height: 220px;
-	}
+                    ' Add parameter
+                    cmd.Parameters.AddWithValue("?", txtID.Text)
 
-	.Services{
+                    ' Execute the command
+                    Dim rowsAffected As Integer = cmd.ExecuteNonQuery()
 
-	margin-top: 50px;
-	margin-left: 220px;
-	margin-right: 20px;
-	background-color: #6F8FAF;
-	text-align: center;
-	font-family: "Lucida Console", "Courier New", monospace;
-	border-radius: 40px;
-	}
-	
-	.Services img{
-		width: 200px;
-		height:200px;
-	}
-	
-	#txt {
-		font-size : 60px;
-		color : #A7C7E7;
-		background-color : #000080;
-		
-	}
-	
+                    If rowsAffected > 0 Then
+                        MessageBox.Show("Record deleted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                        ' Clear the form fields after deletion
+                        txtID.Clear()
+                        txtName.Clear()
+                        txtIC.Clear()
+                        cbGender.SelectedIndex = -1
+                        txtNum.Clear()
+                        txtAdd.Clear()
+                        cbClinic.SelectedIndex = -1
+
+                        ' Disable text fields and combo boxes after deletion
+                        txtID.Enabled = False
+                        txtName.Enabled = False
+                        txtIC.Enabled = False
+                        cbGender.Enabled = False
+                        txtNum.Enabled = False
+                        txtAdd.Enabled = False
+                        cbClinic.Enabled = False
+                        btnSave.Enabled = False
+                    Else
+                        MessageBox.Show("No record found with the specified ID.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    End If
+
+                Catch ex As Exception
+                    MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Finally
+                    ' Close the connection
+                    If con.State = ConnectionState.Open Then
+                        con.Close()
+                    End If
+                End Try
+            End If
+        End If
+    End Sub
+
+
+    Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
+        ' Confirm exit action
+        Dim result As DialogResult = MessageBox.Show("Are you sure you want to exit the application?", "Confirm Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+
+        If result = DialogResult.Yes Then
+            ' Exit the application
+            Application.Exit()
+        End If
+    End Sub
+
+    Private Sub cbClinician_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cbClinic.SelectedIndexChanged
+
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Me.Hide()
+        Form2.Show()
+    End Sub
+End Class
+
+
+
+
